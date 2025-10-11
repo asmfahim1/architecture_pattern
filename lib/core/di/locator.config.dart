@@ -8,6 +8,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:architecture_pattern/core/di/app_module.dart' as _i1044;
 import 'package:architecture_pattern/core/network/api_client.dart' as _i994;
 import 'package:architecture_pattern/core/network/network_info.dart' as _i642;
 import 'package:architecture_pattern/core/theme/theme_manager.dart' as _i115;
@@ -28,15 +29,22 @@ import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
-  _i174.GetIt init({
+  Future<_i174.GetIt> init({
     String? environment,
     _i526.EnvironmentFilter? environmentFilter,
-  }) {
+  }) async {
     final gh = _i526.GetItHelper(
       this,
       environment,
       environmentFilter,
     );
+    final appModule = _$AppModule();
+    await gh.factoryAsync<_i460.SharedPreferences>(
+      () => appModule.prefs,
+      preResolve: true,
+    );
+    gh.lazySingleton<_i642.NetworkInfoImpl>(() => _i642.NetworkInfoImpl());
+    gh.lazySingleton<_i361.Dio>(() => appModule.dio);
     gh.lazySingleton<_i115.ThemeCubit>(
         () => _i115.ThemeCubit(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i994.ApiClient>(() => _i994.ApiClient(gh<_i361.Dio>()));
@@ -53,3 +61,5 @@ extension GetItInjectableX on _i174.GetIt {
     return this;
   }
 }
+
+class _$AppModule extends _i1044.AppModule {}
