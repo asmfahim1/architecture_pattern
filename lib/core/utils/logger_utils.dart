@@ -1,5 +1,5 @@
-// logger_utils.dart
-import 'package:logger/logger.dart';
+/*
+
 
 class LoggerUtils {
   static final Logger _logger = Logger(
@@ -27,4 +27,4 @@ class LoggerUtils {
   static void error(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _logger.e(message, error: error, stackTrace: stackTrace);
   }
-}
+}*/

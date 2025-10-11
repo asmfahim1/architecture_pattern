@@ -1,6 +1,5 @@
-// dialog_utils.dart
+import 'package:architecture_pattern/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 
 class DialogUtils {
   DialogUtils._();
