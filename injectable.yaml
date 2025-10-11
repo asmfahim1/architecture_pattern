@@ -1,0 +1,12 @@
+targets:
+  $default:
+    generate_for:
+      - lib/**.dart
+    exclude:
+      - test/**
+    sources:
+      - lib
+    options:
+      build_extensions:
+        .dart:
+          - .config.dart
