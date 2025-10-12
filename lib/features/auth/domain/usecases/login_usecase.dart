@@ -3,7 +3,7 @@ import 'package:architecture_pattern/features/auth/domain/entities/user_entity.d
 import 'package:architecture_pattern/features/auth/domain/repository/auth_repo.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@LazySingleton()
 class LoginUseCase {
   final AuthRepository repository;
 
