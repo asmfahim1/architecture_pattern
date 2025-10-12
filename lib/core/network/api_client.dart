@@ -4,8 +4,11 @@ import 'package:injectable/injectable.dart';
 @lazySingleton
 class ApiClient {
   final Dio dio;
+
   ApiClient(this.dio) {
     dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
+
+    dio.options.headers['x-api-key'] = "reqres-free-v1";
   }
 
   Future<Response> get(String url, {Map<String, dynamic>? queryParameters}) =>

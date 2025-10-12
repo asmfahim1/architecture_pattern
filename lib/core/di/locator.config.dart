@@ -22,6 +22,18 @@ import 'package:architecture_pattern/features/auth/domain/usecases/login_usecase
     as _i294;
 import 'package:architecture_pattern/features/auth/presentation/bloc/auth_bloc.dart'
     as _i241;
+import 'package:architecture_pattern/features/dashboard/data/datasource/product_remote_datasource.dart'
+    as _i719;
+import 'package:architecture_pattern/features/dashboard/data/repositories/product_repo_impl.dart'
+    as _i89;
+import 'package:architecture_pattern/features/dashboard/domain/repository/product_repo.dart'
+    as _i295;
+import 'package:architecture_pattern/features/dashboard/domain/usecase/get_product_list_usecase.dart'
+    as _i552;
+import 'package:architecture_pattern/features/dashboard/domain/usecase/get_total_page_usecase.dart'
+    as _i681;
+import 'package:architecture_pattern/features/dashboard/presentation/bloc/product_bloc.dart'
+    as _i697;
 import 'package:dio/dio.dart' as _i361;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
@@ -43,19 +55,31 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.prefs,
       preResolve: true,
     );
-    gh.lazySingleton<_i642.NetworkInfoImpl>(() => _i642.NetworkInfoImpl());
     gh.lazySingleton<_i361.Dio>(() => appModule.dio);
     gh.lazySingleton<_i115.ThemeCubit>(
         () => _i115.ThemeCubit(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i994.ApiClient>(() => _i994.ApiClient(gh<_i361.Dio>()));
     gh.lazySingleton<_i313.AuthRemoteDataSource>(
         () => _i313.AuthRemoteDataSourceImpl(gh<_i994.ApiClient>()));
+    gh.lazySingleton<_i719.ProductRemoteDataSource>(
+        () => _i719.ProductRemoteDataSourceImpl(gh<_i994.ApiClient>()));
+    gh.lazySingleton<_i642.NetworkInfo>(() => _i642.NetworkInfoImpl());
+    gh.lazySingleton<_i295.ProductRepository>(
+        () => _i89.ProductRepositoryImpl(gh<_i719.ProductRemoteDataSource>()));
     gh.lazySingleton<_i104.AuthRepository>(() => _i155.AuthRepositoryImpl(
           remoteDataSource: gh<_i313.AuthRemoteDataSource>(),
           networkInfo: gh<_i642.NetworkInfo>(),
         ));
-    gh.factory<_i294.LoginUseCase>(
+    gh.lazySingleton<_i552.GetProductsUseCase>(
+        () => _i552.GetProductsUseCase(gh<_i295.ProductRepository>()));
+    gh.lazySingleton<_i681.GetTotalPagesUseCase>(
+        () => _i681.GetTotalPagesUseCase(gh<_i295.ProductRepository>()));
+    gh.lazySingleton<_i294.LoginUseCase>(
         () => _i294.LoginUseCase(gh<_i104.AuthRepository>()));
+    gh.factory<_i697.ProductBloc>(() => _i697.ProductBloc(
+          gh<_i552.GetProductsUseCase>(),
+          gh<_i681.GetTotalPagesUseCase>(),
+        ));
     gh.factory<_i241.AuthBloc>(
         () => _i241.AuthBloc(loginUseCase: gh<_i294.LoginUseCase>()));
     return this;

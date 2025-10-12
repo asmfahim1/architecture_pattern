@@ -15,11 +15,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> login(String email, String password) async {
-    // reqres.in example (dummy)
-    final resp = await client.post('https://reqres.in/api/login', data: {
-      'email': email,
-      'password': password,
-    });
+    final resp = await client.post(
+      'https://reqres.in/api/login',
+      data: {
+        'email': email,
+        'password': password,
+      },
+    );
     if (resp.statusCode == 200) {
       final token = resp.data['token'] as String?;
       if (token != null) return UserModel(token: token, email: email);
