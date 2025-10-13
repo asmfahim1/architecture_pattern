@@ -32,8 +32,12 @@ dependencies:
   google_fonts: ^6.1.0
 
   # Notifications
-#  flutter_local_notifications: 13.0.0
-#  firebase_messaging: ^14.7.10
+  flutter_local_notifications: 18.0.1
+  firebase_core:
+  firebase_messaging:
+  firebase_crashlytics:
+  firebase_auth:
+  timezone:
 
   # Image Picker
   image_picker: ^1.0.7
@@ -45,6 +49,7 @@ dependencies:
 
   # Utils
   package_info_plus: ^5.0.1
+  permission_handler:
 
   # Icons
   cupertino_icons: ^1.0.6
