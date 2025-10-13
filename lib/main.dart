@@ -1,3 +1,4 @@
+import 'package:architecture_pattern/core/env/env_factory.dart';
 import 'package:architecture_pattern/core/routes/app_routes.dart';
 import 'package:architecture_pattern/core/routes/bindings.dart';
 import 'package:architecture_pattern/core/theme/theme_manager.dart';

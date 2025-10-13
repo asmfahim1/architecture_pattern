@@ -1,0 +1,1 @@
+enum AppEnv { prod, stag, local }
