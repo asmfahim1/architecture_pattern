@@ -1,4 +1,5 @@
 import 'package:architecture_pattern/core/env/env_factory.dart';
+import 'package:architecture_pattern/core/firebase_manager/firebase_notification_service.dart';
 import 'package:architecture_pattern/core/routes/app_routes.dart';
 import 'package:architecture_pattern/core/routes/bindings.dart';
 import 'package:architecture_pattern/core/theme/theme_manager.dart';
@@ -12,6 +13,7 @@ import 'core/di/locator.dart' as di;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.configureDependencies();
+  await FirebaseNotificationService.initLocalOnly();
   runApp(const MyApp());
 }
 
