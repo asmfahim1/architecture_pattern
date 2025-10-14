@@ -69,7 +69,6 @@ class FirebaseNotificationService {
   static FirebaseMessaging? _firebaseMessaging;
 
   /// Initialize only local notification service (without Firebase)
-  /// Use this when you only need local notifications
   static Future<void> initLocalOnly() async {
     // Setup local notification channel
     const initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -126,7 +125,6 @@ class FirebaseNotificationService {
   }
 
   /// Full initialization including Firebase (when needed)
-  /// Use this when you need both Firebase messaging and local notifications
   static Future<void> init({bool isBackgroundIsolate = false}) async {
     // Initialize Firebase only if it hasn't been initialized yet
     try {
@@ -151,9 +149,7 @@ class FirebaseNotificationService {
     }
 
     // Setup local notification channel
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
 
     await _firebaseMessaging?.setForegroundNotificationPresentationOptions(
       alert: true,
