@@ -1,4 +1,5 @@
 // features/dashboard/ui/dashboard_page.dart
+import 'package:architecture_pattern/features/dashboard/presentation/ui/schedule_notification_test_screen.dart';
 import 'package:architecture_pattern/features/dashboard/presentation/widgets/dashboard_card.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +45,9 @@ class DashboardPage extends StatelessWidget {
                     title: 'Analytics',
                     icon: Icons.analytics,
                     color: Colors.orange,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ScheduleNotificationTestScreen()));
+                    },
                   ),
                   DashboardCard(
                     title: 'Settings',

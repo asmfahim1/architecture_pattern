@@ -11,7 +11,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -21,75 +20,139 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
   importance: Importance.high,
 );
 
+/// Background message handler for Firebase Messaging
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-
-  // await Firebase.initializeApp();
   if (kDebugMode) {
     print('Handling a background message ${message.messageId}');
   }
 
   debugPrint('Message received: ${message.data}');
   debugPrint('Notification body : ${message.notification?.body}');
+
   final data = message.data;
   final notification = message.notification;
 
   if (data['type'] == 'call') {
-    // final secureSessionManager = SecureSessionManager(SecureManager(const FlutterSecureStorage()));
     final callData = {
       'title': notification?.title,
       'body': notification?.body,
       'appointment_code': data['appointment_code'],
       'appointment_id': data['appointment_id'],
     };
-    // await secureSessionManager.setCallData(jsonEncode(callData));
-    FirebaseNotificationService.showCallNotification(
-      callData: callData,
-    );
+
+    FirebaseNotificationService.showCallNotification(callData: callData);
   }
   else if (data['type'] == 'appointment') {
-    // Handle background messages
     if (notification != null) {
-      final notification = message.notification;
-      // Combine into ISO format and parse
       String? name = "${data["name"]}";
       String combinedString = "${data["date"]}T${data["time"]}:00.000";
       DateTime dateTime = DateTime.parse(combinedString);
 
-      // FlutterAlarmManager().scheduleAlarm(name, dateTime);
-
-      FirebaseNotificationService.showNotification(notification.hashCode, notification?.title, notification?.body);
+      FirebaseNotificationService.showNotification(
+          notification.hashCode,
+          notification.title,
+          notification.body
+      );
     }
   } else {
-    // Handle background messages
     if (notification != null) {
-      final notification = message.notification;
-
-      FirebaseNotificationService.showNotification(notification.hashCode, notification?.title, notification?.body);
-
+      FirebaseNotificationService.showNotification(
+          notification.hashCode,
+          notification.title,
+          notification.body
+      );
     }
   }
-
-  /*if (message.notification != null){
-    FirebaseMessaging.onMessage.listen((remoteMessage) {
-
-    });
-  }*/
 }
 
 class FirebaseNotificationService {
-
   static FirebaseMessaging? _firebaseMessaging;
 
-  static Future<void> init({bool isBackgroundIsolate = false}) async {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+  /// Initialize only local notification service (without Firebase)
+  /// Use this when you only need local notifications
+  static Future<void> initLocalOnly() async {
+    // Setup local notification channel
+    const initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    DarwinInitializationSettings iosInitializationSetting = DarwinInitializationSettings(
+      requestSoundPermission: true,
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      notificationCategories: <DarwinNotificationCategory>[
+        DarwinNotificationCategory(
+          'call',
+          actions: <DarwinNotificationAction>[
+            DarwinNotificationAction.plain(
+              'accept',
+              'Accept',
+              options: <DarwinNotificationActionOption>{
+                DarwinNotificationActionOption.foreground,
+              },
+            ),
+            DarwinNotificationAction.plain(
+              'decline',
+              'Decline',
+              options: <DarwinNotificationActionOption>{
+                DarwinNotificationActionOption.destructive,
+              },
+            ),
+          ],
+          options: <DarwinNotificationCategoryOption>{
+            DarwinNotificationCategoryOption.allowAnnouncement,
+          },
+        ),
+      ],
     );
+
+    var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: iosInitializationSetting,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        debugPrint('Notification response received: ${response.actionId}');
+        debugPrint('Payload: ${response.payload}');
+      },
+    );
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    // Request notification permissions
+    if (!kIsWeb && !Platform.isLinux) {
+      await PermissionUtil.notificationRequest();
+    }
+  }
+
+  /// Full initialization including Firebase (when needed)
+  /// Use this when you need both Firebase messaging and local notifications
+  static Future<void> init({bool isBackgroundIsolate = false}) async {
+    // Initialize Firebase only if it hasn't been initialized yet
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print("Firebase already initialized or error: $e");
+      }
+    }
 
     _firebaseMessaging ??= FirebaseMessaging.instance;
 
-    // set callback handler for background notification
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+    // Set callback handler for background notification
+    try {
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    } catch (e) {
+      if (kDebugMode) {
+        print("Background handler already registered: $e");
+      }
+    }
+
+    // Setup local notification channel
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
     await _firebaseMessaging?.setForegroundNotificationPresentationOptions(
@@ -99,7 +162,6 @@ class FirebaseNotificationService {
     );
 
     // Request notification permissions
-    // Only request notification permissions if we're NOT in a background isolate
     if (!isBackgroundIsolate) {
       await PermissionUtil.notificationRequest();
     } else {
@@ -109,6 +171,8 @@ class FirebaseNotificationService {
     }
   }
 
+  /// Initialize settings for handling notification responses
+  /// Works for both Firebase and local notifications
   static void initSettings(
       Function(RemoteMessage message) onData,
       Function(NotificationResponse response) handleNotificationCallback,
@@ -148,49 +212,34 @@ class FirebaseNotificationService {
       android: initializationSettingsAndroid,
       iOS: iosInitializationSetting,
     );
+
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle when user taps on notification
-        // _handleNotificationResponse(response);
         debugPrint('Notification response received: ${response.actionId}');
         debugPrint('Payload: ${response.payload}');
         handleNotificationCallback(response);
       },
     );
-    if (Platform.isAndroid){
-      FirebaseMessaging.onMessage.listen((event) => onData(event),);
+
+    // Only setup Firebase listener if Firebase is initialized
+    if (Platform.isAndroid && _firebaseMessaging != null) {
+      FirebaseMessaging.onMessage.listen((event) => onData(event));
     }
   }
 
+  /// Get Firebase token (only available when Firebase is initialized)
   static Future<String?> getToken() async => await _firebaseMessaging?.getToken();
 
-  static void dispose(){
-    if (_firebaseMessaging != null){
-      _firebaseMessaging = null;
-    }
+  /// Dispose of Firebase messaging instance
+  static void dispose() {
+    _firebaseMessaging = null;
   }
 
-  static void _handleNotificationResponse(NotificationResponse response) {
-    // Handle the response from the notification
-    // For call notifications, response.actionId would be 'accept' or 'decline'
-    if (response.actionId == 'accept') {
-      final callData = jsonDecode(response.payload  ?? "{}" );
-      if(callData != {} ){
-
-      }
-      // Handle call acceptance
-      debugPrint('Call accepted');
-    } else if (response.actionId == 'decline') {
-      // Handle call rejection
-      debugPrint('Call declined');
-    }
-  }
-
+  /// Show an incoming call notification with action buttons
   static Future<void> showCallNotification({
     required Map<String, dynamic> callData,
   }) async {
-    // Android configuration
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
     AndroidNotificationDetails(
       'call_channel',
@@ -216,15 +265,14 @@ class FirebaseNotificationService {
       color: Colors.green,
     );
 
-    // iOS configuration - critical for action handling
     const DarwinNotificationDetails iOSPlatformChannelSpecifics =
     DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
-      categoryIdentifier: 'call', // Must match AppDelegate category
-      interruptionLevel: InterruptionLevel.critical, // Makes notification more prominent
-      threadIdentifier: 'video_calls', // Groups similar notifications
+      categoryIdentifier: 'call',
+      interruptionLevel: InterruptionLevel.critical,
+      threadIdentifier: 'video_calls',
     );
 
     await flutterLocalNotificationsPlugin.show(
@@ -239,13 +287,14 @@ class FirebaseNotificationService {
     );
   }
 
+  /// Schedule a local notification at specific time
+  /// Works without Firebase dependency
   static Future<void> scheduleNotification({
     required int id,
     required String title,
     required String body,
     required DateTime scheduledTime,
   }) async {
-    // Initialize timezone database
     tz.initializeTimeZones();
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
@@ -272,7 +321,9 @@ class FirebaseNotificationService {
     );
   }
 
-  static showNotification(int? id, String? title, String? body){
+  /// Show immediate local notification
+  /// Works without Firebase dependency
+  static void showNotification(int? id, String? title, String? body) {
     flutterLocalNotificationsPlugin.show(
       id ?? DateTime.now().millisecondsSinceEpoch.hashCode.abs(),
       title,
