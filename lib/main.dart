@@ -1,4 +1,3 @@
-import 'package:architecture_pattern/core/env/env_factory.dart';
 import 'package:architecture_pattern/core/firebase_manager/firebase_notification_service.dart';
 import 'package:architecture_pattern/core/routes/app_routes.dart';
 import 'package:architecture_pattern/core/routes/bindings.dart';
@@ -29,6 +28,7 @@ class MyApp extends StatelessWidget {
           return BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, themeState) {
               return MaterialApp(
+                debugShowCheckedModeBanner: false,
                 title: 'Clean Flutter Starter',
                 theme: ThemeData.light(),
                 darkTheme: ThemeData.dark(),
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                 ],
-                initialRoute: '/dashboard',
+                initialRoute: '/',
                 routes: AppRoutes.routes,
               );
             },
