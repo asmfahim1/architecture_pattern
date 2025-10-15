@@ -7,7 +7,7 @@ class ThemeState {
   ThemeState(this.isDark);
 }
 
-@lazySingleton
+@injectable
 class ThemeCubit extends Cubit<ThemeState> {
   final SharedPreferences prefs;
   static const _key = 'isDark';

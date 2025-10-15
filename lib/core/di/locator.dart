@@ -4,7 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'locator.config.dart';
 import 'app_module.dart';
 
-final GetIt sl = GetIt.instance;
+final GetIt getIt = GetIt.instance;
 
 @InjectableInit()
-Future<void> configureDependencies() async => sl.init();
+Future<void> configureDependencies() async => getIt.init();

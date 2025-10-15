@@ -9,8 +9,12 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:architecture_pattern/core/di/app_module.dart' as _i1044;
+import 'package:architecture_pattern/core/env/env_factory.dart' as _i603;
+import 'package:architecture_pattern/core/localization/language_manager.dart'
+    as _i385;
 import 'package:architecture_pattern/core/network/api_client.dart' as _i994;
 import 'package:architecture_pattern/core/network/network_info.dart' as _i642;
+import 'package:architecture_pattern/core/storae/session_manager.dart' as _i424;
 import 'package:architecture_pattern/core/theme/theme_manager.dart' as _i115;
 import 'package:architecture_pattern/features/auth/data/data_source/auth_remote_data_source.dart'
     as _i313;
@@ -34,6 +38,10 @@ import 'package:architecture_pattern/features/dashboard/domain/usecase/get_total
     as _i681;
 import 'package:architecture_pattern/features/dashboard/presentation/bloc/product_bloc.dart'
     as _i697;
+import 'package:architecture_pattern/features/settings/presentation/bloc/logout_bloc.dart'
+    as _i501;
+import 'package:architecture_pattern/features/settings/presentation/bloc/profile_bloc.dart'
+    as _i412;
 import 'package:dio/dio.dart' as _i361;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
@@ -55,7 +63,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.prefs,
       preResolve: true,
     );
+    gh.factory<_i603.EnvFactory>(() => _i603.EnvFactory());
+    gh.factory<_i424.SessionManager>(() => _i424.SessionManager());
+    gh.factory<_i501.LogoutBloc>(() => _i501.LogoutBloc());
+    gh.factory<_i412.ProfileBloc>(() => _i412.ProfileBloc());
     gh.lazySingleton<_i361.Dio>(() => appModule.dio);
+    gh.lazySingleton<_i385.LanguageCubit>(
+        () => _i385.LanguageCubit(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i115.ThemeCubit>(
         () => _i115.ThemeCubit(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i994.ApiClient>(() => _i994.ApiClient(gh<_i361.Dio>()));

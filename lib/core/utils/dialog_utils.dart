@@ -14,7 +14,7 @@ class DialogUtils {
       builder: (ctx) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.check_circle, color: AppColors.success),
+            const Icon(Icons.check_circle, color: AppColors.primary),
             const SizedBox(width: 8),
             Text(title),
           ],
