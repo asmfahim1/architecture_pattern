@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2)); // Show splash for at least 2 seconds
 
     if (isLoggedIn) {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/dashboard');
     } else {
       Navigator.pushReplacementNamed(context, '/login');
     }

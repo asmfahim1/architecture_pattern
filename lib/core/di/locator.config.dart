@@ -64,13 +64,12 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.factory<_i603.EnvFactory>(() => _i603.EnvFactory());
-    gh.factory<_i424.SessionManager>(() => _i424.SessionManager());
     gh.factory<_i501.LogoutBloc>(() => _i501.LogoutBloc());
     gh.factory<_i412.ProfileBloc>(() => _i412.ProfileBloc());
     gh.lazySingleton<_i361.Dio>(() => appModule.dio);
-    gh.lazySingleton<_i385.LanguageCubit>(
+    gh.factory<_i385.LanguageCubit>(
         () => _i385.LanguageCubit(gh<_i460.SharedPreferences>()));
-    gh.lazySingleton<_i115.ThemeCubit>(
+    gh.factory<_i115.ThemeCubit>(
         () => _i115.ThemeCubit(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i994.ApiClient>(() => _i994.ApiClient(gh<_i361.Dio>()));
     gh.lazySingleton<_i313.AuthRemoteDataSource>(
@@ -78,6 +77,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i719.ProductRemoteDataSource>(
         () => _i719.ProductRemoteDataSourceImpl(gh<_i994.ApiClient>()));
     gh.lazySingleton<_i642.NetworkInfo>(() => _i642.NetworkInfoImpl());
+    gh.factory<_i424.SessionManager>(
+        () => _i424.SessionManager(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i295.ProductRepository>(
         () => _i89.ProductRepositoryImpl(gh<_i719.ProductRemoteDataSource>()));
     gh.lazySingleton<_i104.AuthRepository>(() => _i155.AuthRepositoryImpl(
